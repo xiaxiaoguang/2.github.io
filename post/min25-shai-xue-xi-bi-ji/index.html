@@ -1,0 +1,335 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+    
+<meta charset="utf-8" >
+
+<title>Min25筛学习笔记 | Gridea</title>
+<meta name="description" content="温故而知新">
+
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.0/animate.min.css">
+
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+<link rel="shortcut icon" href="https://xiaxiaoguang.github.io/2.github.io//favicon.ico?v=1660832918123">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css">
+<link rel="stylesheet" href="https://xiaxiaoguang.github.io/2.github.io//styles/main.css">
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.5.1/build/highlight.min.js"></script>
+
+
+
+  </head>
+  <body>
+    <div id="app" class="main">
+      <div class="site-header-container">
+  <div class="site-header">
+    <div class="left">
+      <a href="https://xiaxiaoguang.github.io/2.github.io/">
+        <img class="avatar" src="https://xiaxiaoguang.github.io/2.github.io//images/avatar.png?v=1660832918123" alt="" width="32px" height="32px">
+      </a>
+      <a href="https://xiaxiaoguang.github.io/2.github.io/">
+        <h1 class="site-title">Gridea</h1>
+      </a>
+    </div>
+    <div class="right">
+      <transition name="fade">
+        <i class="icon" :class="{ 'icon-close-outline': menuVisible, 'icon-menu-outline': !menuVisible }" @click="menuVisible = !menuVisible"></i>
+      </transition>
+    </div>
+  </div>
+</div>
+
+<transition name="fade">
+  <div class="menu-container" style="display: none;" v-show="menuVisible">
+    <div class="menu-list">
+      
+        
+          <a href="/2.github.io/" class="menu purple-link">
+            首页
+          </a>
+        
+      
+        
+          <a href="/2.github.io/archives" class="menu purple-link">
+            归档
+          </a>
+        
+      
+        
+          <a href="/2.github.io/tags" class="menu purple-link">
+            标签
+          </a>
+        
+      
+        
+          <a href="/2.github.io/post/about" class="menu purple-link">
+            关于
+          </a>
+        
+      
+    </div>
+  </div>
+</transition>
+
+
+      <div class="content-container">
+        <div class="post-detail">
+          
+          <h2 class="post-title">Min25筛学习笔记</h2>
+          <div class="post-info post-detail-info">
+            <span><i class="icon-calendar-outline"></i> 2022-08-12</span>
+            
+          </div>
+          <div class="post-content" v-pre>
+            <p>我觉得我之前是不是写过了</p>
+<p>但是我太懒没有写代码，这里放下我写的min25代码。。。</p>
+<p><a href="min25%E7%AC%AC%E4%B8%80%E6%AD%A5%E7%9A%84%E7%BB%83%E4%B9%A0%E9%A2%98">https://www.luogu.com.cn/problem/P5493</a></p>
+<pre><code class="language-cpp">
+//写min25用int的好地方：
+//1. l,r整除分块
+//2. get函数参数
+//3. v数组
+//4.求k次方和，需要先对x取模
+//卡常：关键在那个二重循环，我把ksm预处理就过了
+#include&lt;bits/stdc++.h&gt;
+#define ll long long 
+//#define int long long 
+using namespace std;
+const int MAXN=4e5+7;
+
+ll n,k,P;
+ll v[MAXN*2];
+int id1[MAXN],id2[MAXN],m;
+ll g[MAXN*2];
+
+inline ll add(ll x,ll y){
+    return x+y&gt;P?x+y-P:x+y;
+}
+inline void inc(ll &amp;x,ll y){
+    x=add(x,y);
+}
+inline ll red(ll x,ll y){
+    return x-y&lt;0?x-y+P:x-y;
+}
+inline int get(ll x){
+    return x&lt;MAXN?id1[x]:id2[n/x];
+}
+inline ll ksm(ll x,ll y){
+    ll ans=1;
+    x%=P;
+    while(y){
+        if(y&amp;1)ans=ans*x%P;
+        x=x*x%P;
+        y&gt;&gt;=1;
+    }
+    return ans;
+}
+
+int pri[MAXN],tot,isp[MAXN];
+ll S[20][20],inv[20],prik[MAXN];
+inline void init(int n){
+    for(int i=2;i&lt;=n;++i){
+        if(!isp[i]){
+            pri[++tot]=i;
+            prik[tot]=ksm(i,k);
+        }
+        for(int j=1;j&lt;=tot &amp;&amp; i*pri[j]&lt;=n; ++j){
+            isp[i*pri[j]]=1;
+            if(i%pri[j]==0)break;
+        }
+    }
+    S[0][0]=1;
+    for(int i=1;i&lt;=k;++i){
+        for(int j=1;j&lt;=i;++j){
+            S[i][j]=add(1ll*S[i-1][j]*j%P,S[i-1][j-1]);
+        }
+    }
+    for(int i=1;i&lt;=k+1;++i){
+        inv[i]=ksm(i,P-2);
+    }
+    return ;
+}
+
+
+
+inline ll Sk(ll x){
+    ll ret=0;
+    ll tmp=1;
+    x%=P;
+    for(int i=0;i&lt;=k;++i){
+        tmp=tmp*(x+1-i)%P;
+        inc(ret,tmp%P*inv[i+1]%P*S[k][i]%P);
+    }
+    if(k==0)--ret;
+    return ret;
+}
+
+int main(){
+    scanf(&quot;%lld%lld%lld&quot;,&amp;n,&amp;k,&amp;P);
+    init(sqrt(n)+1);
+    for(ll l=1,r;l&lt;=n;l=r+1){
+        r=n/(n/l);
+        v[++m]=n/l;
+        if(v[m]&lt;MAXN)id1[v[m]]=m;
+        else id2[n/v[m]]=m;
+        g[m]=(Sk(n/l)-1+P)%P;
+    }
+    for(int j=1;j&lt;=tot;++j){
+        for(int i=1;i&lt;=m &amp;&amp; pri[j]&lt;=v[i]/pri[j];++i){
+            g[i]=red(g[i],prik[j]*(red(g[get(v[i]/pri[j])],g[get(pri[j-1])]))%P);
+        }
+    }
+    int p=sqrt(n);
+    ll ans=0;
+    for(int i=1;i&lt;=p;++i){
+        inc(ans,1ll*i*g[get(n/i)]%P*i%P);
+    }
+    printf(&quot;%lld\n&quot;,ans);
+    return 0;
+}
+//10000000000 10 1000000007
+
+</code></pre>
+<p><a href="Min25%E6%A8%A1%E6%9D%BF%E9%A2%98">https://www.luogu.com.cn/problem/P5325</a></p>
+<pre><code class="language-cpp">
+#include&lt;bits/stdc++.h&gt;
+using namespace std;
+
+const int MAXN=2e5+5,P=1e9+7,i2=5e8+4,i6=166666668;
+
+#define ll long long 
+
+ll n;
+int id1[MAXN],id2[MAXN],m;
+int p[MAXN],vis[MAXN],cnt;
+ll g1[MAXN],g2[MAXN],v[MAXN];
+
+inline int get(ll x){return x&lt;MAXN?id1[x]:id2[n/x];}
+inline ll S1(ll x){
+    x%=P;
+    return x*(x+1)%P*i2%P;//一次方和
+}
+
+inline ll S2(ll x){
+    x%=P;
+    return x*(x+1)%P*(2*x+1)%P*i6%P;//平方和
+}
+
+inline ll sq(ll x){
+    x%=P;
+    return x*x%P;
+}
+
+inline ll F(ll x){
+    x%=P;
+    return (sq(x)-x+P)%P;
+    //单点p^k值
+}
+
+inline void init(int n){
+    for(int i=2;i&lt;=n;++i){
+        if(!vis[i])p[++cnt]=i;
+        for(int j=1;j&lt;=cnt &amp;&amp; p[j]&lt;=n/i;++j){
+            vis[i*p[j]]=1;
+            if(i%p[j]==0)break;
+        }
+    }
+    //预处理所有素数
+}
+
+ll S(ll x,int y){
+    if(p[y]&gt;=x)return 0;
+    ll res=(g2[get(x)]-g1[get(x)]-g2[get(p[y])]+g1[get(p[y])]+2*P)%P;
+    for(int i=y+1;i&lt;=cnt&amp;&amp;p[i]&lt;=x/p[i];++i){
+        ll w=p[i];
+        for(int j=1;w&lt;=x/p[i];++j,w=w*p[i]){//w不取模
+            res=(res+F(w)*S(x/w,i)%P+F(w*p[i]))%P;
+        }//p_i&gt;x/p_i那么那个S函数求和结果就是0了
+    }return res;
+}
+
+int main(){
+    scanf(&quot;%lld&quot;,&amp;n);
+    init(sqrt(n)+1);
+    for(ll l=1,r;l&lt;=n;l=r+1){
+        r=n/(n/l),v[++m]=n/l;
+        if(v[m]&lt;MAXN)id1[v[m]]=m;
+        else id2[n/v[m]]=m;//这什么毛病？？纯粹就压缩点空间？？
+        //哦，如果太大了，相当于我们记录整出分块的根号个点值！！
+        g1[m]=(S1(v[m])-1+P)%P;
+        g2[m]=(S2(v[m])-1+P)%P;
+    }
+    for(int j=1;j&lt;=cnt;++j){
+        for(int i=1;i&lt;=m &amp;&amp; p[j]&lt;=v[i]/p[j];++i){
+            g1[i]=(g1[i]-p[j]*(g1[get(v[i]/p[j])]-g1[get(p[j-1])])%P+P)%P;
+            g2[i]=(g2[i]-sq(p[j])*(g2[get(v[i]/p[j])]-g2[get(p[j-1])])%P+P)%P;
+            //对两个多项式求和，g一开始定义是没有二维的哦！所以我们直接滚动了
+        }
+    }
+    printf(&quot;%lld\n&quot;,(S(n,0)+1)%P);
+    return 0;
+}
+ 
+
+
+</code></pre>
+
+          </div>
+        </div>
+
+        
+          <div class="next-post">
+            <a class="purple-link" href="https://xiaxiaoguang.github.io/2.github.io/post/2022-78-yue-cf-bu-ti-ji/">
+              <h3 class="post-title">
+                下一篇：2022 78月CF补题记
+              </h3>
+            </a>
+          </div>
+          
+      </div>
+
+      
+
+      <div class="site-footer">
+  <div class="slogan">温故而知新</div>
+  <div class="social-container">
+    
+      
+    
+      
+    
+      
+    
+      
+    
+      
+    
+  </div>
+  Powered by <a href="https://github.com/getgridea/gridea" target="_blank">Gridea</a> | <a class="rss" href="https://xiaxiaoguang.github.io/2.github.io//atom.xml" target="_blank">RSS</a>
+</div>
+
+
+    </div>
+    <script type="application/javascript">
+
+hljs.initHighlightingOnLoad()
+
+var app = new Vue({
+  el: '#app',
+  data: {
+    menuVisible: false,
+  },
+})
+
+</script>
+
+
+
+
+  </body>
+</html>
